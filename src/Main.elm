@@ -21,7 +21,7 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init _ = 
-    (Model "", Cmd.none)
+    (Model "", getQuote)
 
 type Msg 
     = GetQuote

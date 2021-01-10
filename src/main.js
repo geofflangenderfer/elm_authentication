@@ -5322,15 +5322,6 @@ var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Main$Model = function (quote) {
 	return {quote: quote};
 };
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2(
-		$author$project$Main$Model(''),
-		$elm$core$Platform$Cmd$none);
-};
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$QuoteReceived = function (a) {
 	return {$: 'QuoteReceived', a: a};
 };
@@ -6118,6 +6109,15 @@ var $author$project$Main$getQuote = $elm$http$Http$get(
 		expect: $elm$http$Http$expectString($author$project$Main$QuoteReceived),
 		url: 'http://localhost:3001/api/random-quote'
 	});
+var $author$project$Main$init = function (_v0) {
+	return _Utils_Tuple2(
+		$author$project$Main$Model(''),
+		$author$project$Main$getQuote);
+};
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		if (msg.$ === 'GetQuote') {
