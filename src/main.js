@@ -5319,9 +5319,9 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Model = F2(
-	function (quote, errorMsg) {
-		return {errorMsg: errorMsg, quote: quote};
+var $author$project$Main$Model = F4(
+	function (quote, errorMsg, username, password) {
+		return {errorMsg: errorMsg, password: password, quote: quote, username: username};
 	});
 var $author$project$Main$QuoteReceived = function (a) {
 	return {$: 'QuoteReceived', a: a};
@@ -6112,7 +6112,7 @@ var $author$project$Main$getQuote = $elm$http$Http$get(
 	});
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		A2($author$project$Main$Model, '', ''),
+		A4($author$project$Main$Model, '', '', '', ''),
 		$author$project$Main$getQuote);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -6121,26 +6121,47 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'GetQuote') {
-			return _Utils_Tuple2(model, $author$project$Main$getQuote);
-		} else {
-			if (msg.a.$ === 'Ok') {
-				var result = msg.a.a;
+		switch (msg.$) {
+			case 'GetQuote':
+				return _Utils_Tuple2(model, $author$project$Main$getQuote);
+			case 'QuoteReceived':
+				if (msg.a.$ === 'Ok') {
+					var result = msg.a.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{quote: result}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{errorMsg: 'There was an error'}),
+						$elm$core$Platform$Cmd$none);
+				}
+			case 'SetUsername':
+				var u = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{quote: result}),
+						{username: u}),
 					$elm$core$Platform$Cmd$none);
-			} else {
+			default:
+				var pw = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{errorMsg: 'There was an error'}),
+						{password: pw}),
 					$elm$core$Platform$Cmd$none);
-			}
 		}
 	});
 var $author$project$Main$GetQuote = {$: 'GetQuote'};
+var $author$project$Main$SetPassword = function (a) {
+	return {$: 'SetPassword', a: a};
+};
+var $author$project$Main$SetUsername = function (a) {
+	return {$: 'SetUsername', a: a};
+};
 var $elm$html$Html$blockquote = _VirtualDom_node('blockquote');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -6159,6 +6180,7 @@ var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$label = _VirtualDom_node('label');
+var $elm$core$Debug$log = _Debug_log;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6176,12 +6198,45 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$Main$view = function (model) {
-	var loggedIn = true;
+	var loggedIn = false;
 	var authBoxView = function () {
 		var showError = $elm$core$String$isEmpty(model.errorMsg) ? 'hidden' : '';
 		var greeting = 'Hello, ' + ('CUnty' + '!');
@@ -6311,7 +6366,8 @@ var $author$project$Main$view = function (model) {
 										[
 											$elm$html$Html$Attributes$id('username'),
 											$elm$html$Html$Attributes$type_('text'),
-											$elm$html$Html$Attributes$class('form-control')
+											$elm$html$Html$Attributes$class('form-control'),
+											$elm$html$Html$Events$onInput($author$project$Main$SetUsername)
 										]),
 									_List_Nil)
 								]))
@@ -6348,7 +6404,8 @@ var $author$project$Main$view = function (model) {
 										[
 											$elm$html$Html$Attributes$id('password'),
 											$elm$html$Html$Attributes$type_('password'),
-											$elm$html$Html$Attributes$class('form-control')
+											$elm$html$Html$Attributes$class('form-control'),
+											$elm$html$Html$Events$onInput($author$project$Main$SetPassword)
 										]),
 									_List_Nil)
 								]))
@@ -6433,6 +6490,22 @@ var $author$project$Main$view = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$text(model.quote)
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								A2($elm$core$Debug$log, 'u', model.username))
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								A2($elm$core$Debug$log, 'pw', model.password))
 							]))
 					])),
 				A2(

@@ -11,13 +11,15 @@ import Json.Encode as Encode exposing (..)
 type alias Model =
     { quote : String
     , errorMsg : String
+    , username : String
+    , password : String
     }
 
 type Msg 
     = GetQuote
     | QuoteReceived (Result Http.Error String)
---    | SetUsername String
---    | SetPassword String
+    | SetUsername String
+    | SetPassword String
 --    | ClickLogin 
 --    | ClickRegister 
 --    | GetToken
@@ -36,11 +38,11 @@ update msg model =
         --
         QuoteReceived (Err _) ->
             ( { model | errorMsg = "There was an error" }, Cmd.none)
---        SetUsername u ->
---            ( { model | username = u }, Cmd.none)
---        SetPassword pw ->
---            ( { model | password = pw }, Cmd.none)
---        --
+        SetUsername u ->
+            ( { model | username = u }, Cmd.none)
+        SetPassword pw ->
+            ( { model | password = pw }, Cmd.none)
+        --
 --        ClickLogin ->
 --            ( model, authUser)
 --        GetToken ->
@@ -60,7 +62,7 @@ view : Model -> Html Msg
 view model =
     let 
         loggedIn : Bool
-        loggedIn = True
+        loggedIn = False
 
         authBoxView = 
             let 
@@ -91,13 +93,13 @@ view model =
                         , div [ class "form-group row"]
                             [ div [ class "col-md-offset-2 col-md-8"]
                                 [ label [ for "username"] [ text "Username:"]
-                                , input [ id "username", type_ "text", class "form-control"] []
+                                , input [ id "username", type_ "text", class "form-control", onInput SetUsername] []
                                 ]
                             ]
                         , div [ class "form-group row"]
                             [ div [ class "col-md-offset-2 col-md-8"]
                                 [ label [ for "password"] [ text "Password:"]
-                                , input [ id "password", type_ "password", class "form-control" ] []
+                                , input [ id "password", type_ "password", class "form-control", onInput SetPassword ] []
                                 ]
                             ]
                         , div [ class "text-center"]
@@ -114,6 +116,8 @@ view model =
               -- Blockquote with quote
             , blockquote []
                 [ p [] [ text model.quote ]
+                , p [] [ Debug.log "u" model.username |> text ]
+                , p [] [ Debug.log "pw" model.password|> text ]
                 ]
             , div [ class "jumbotron text-left" ]
                 [ -- Login/Register form or user greeting
@@ -143,4 +147,4 @@ main =
 
 init :  () -> (Model, Cmd Msg)
 init _ = 
-    (Model "" "", getQuote)
+    (Model "" "" "" "", getQuote)
