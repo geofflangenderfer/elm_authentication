@@ -2,3 +2,5 @@
 /node_modules
 /dist
 src/index.html.bak
+src/Main.elm.bak
+src/solution.elm

@@ -5319,9 +5319,10 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Model = function (quote) {
-	return {quote: quote};
-};
+var $author$project$Main$Model = F2(
+	function (quote, errorMsg) {
+		return {errorMsg: errorMsg, quote: quote};
+	});
 var $author$project$Main$QuoteReceived = function (a) {
 	return {$: 'QuoteReceived', a: a};
 };
@@ -6111,7 +6112,7 @@ var $author$project$Main$getQuote = $elm$http$Http$get(
 	});
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		$author$project$Main$Model(''),
+		A2($author$project$Main$Model, '', ''),
 		$author$project$Main$getQuote);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -6134,7 +6135,7 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{quote: 'There was an error'}),
+						{errorMsg: 'There was an error'}),
 					$elm$core$Platform$Cmd$none);
 			}
 		}
@@ -6152,7 +6153,12 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
+var $elm$html$Html$h3 = _VirtualDom_node('h3');
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6173,7 +6179,211 @@ var $elm$html$Html$Events$onClick = function (msg) {
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$Main$view = function (model) {
+	var loggedIn = true;
+	var authBoxView = function () {
+		var showError = $elm$core$String$isEmpty(model.errorMsg) ? 'hidden' : '';
+		var greeting = 'Hello, ' + ('CUnty' + '!');
+		return loggedIn ? A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('greeting')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$h3,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('text-center')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(greeting)
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('text-center')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('You can access protected quotes')
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('text-center')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('btn btn-danger')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Log Out')
+								]))
+						]))
+				])) : A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('form')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$h2,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('text-center')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Log In or Register')
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('help-block')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('If you already have an account, please Log In. Otherwise, enter your desired username and password. Then click Register.')
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class(showError)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('alert alert-danger')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(model.errorMsg)
+								]))
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('form-group row')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('col-md-offset-2 col-md-8')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$label,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$for('username')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Username:')
+										])),
+									A2(
+									$elm$html$Html$input,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$id('username'),
+											$elm$html$Html$Attributes$type_('text'),
+											$elm$html$Html$Attributes$class('form-control')
+										]),
+									_List_Nil)
+								]))
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('form-group row')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('col-md-offset-2 col-md-8')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$label,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$for('password')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Password:')
+										])),
+									A2(
+									$elm$html$Html$input,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$id('password'),
+											$elm$html$Html$Attributes$type_('password'),
+											$elm$html$Html$Attributes$class('form-control')
+										]),
+									_List_Nil)
+								]))
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('text-center')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('btn btn-primary')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Login')
+								])),
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('btn btn-link')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Register')
+								]))
+						]))
+				]));
+	}();
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -6190,7 +6400,7 @@ var $author$project$Main$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Chuck Norris!')
+						$elm$html$Html$text('Chuck Norris Quotes')
 					])),
 				A2(
 				$elm$html$Html$p,
@@ -6209,7 +6419,7 @@ var $author$project$Main$view = function (model) {
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Get Quote')
+								$elm$html$Html$text('Grab a quote!')
 							]))
 					])),
 				A2(
@@ -6217,8 +6427,22 @@ var $author$project$Main$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text(model.quote)
-					]))
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(model.quote)
+							]))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('jumbotron text-left')
+					]),
+				_List_fromArray(
+					[authBoxView]))
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
