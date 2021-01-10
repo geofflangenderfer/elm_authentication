@@ -33,7 +33,12 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h1 [] [ text "Chuck Norris!"]
+    div [ class "container" ]
+        [ h2 [ class "text-center"  ] 
+            [ text "Chuck Norris!"]
+        , p [ class "text-center" ]
+            [ button [ class "btn btn-success", onClick GetQuote ] 
+                [ text "Get Quote" ]
+            ]
         , text model.quote
         ]
