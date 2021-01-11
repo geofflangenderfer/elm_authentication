@@ -32,7 +32,11 @@ update msg model =
     case msg of 
         --
         GetQuote ->
-            (model, getQuote)
+          case String.length model.token of 
+            0 ->
+              (model, getQuoteNoAuth)
+            _ ->
+              (model, getQuoteAuth model.token )
         --
         QuoteReceived (Ok result) ->
             ( { model | quote = result }, Cmd.none)
@@ -198,8 +202,20 @@ authUser model authUrl =
     , expect = Http.expectJson TokenReceived (field "access_token" Decode.string)
     }
 
-getQuote : Cmd Msg
-getQuote =
+getQuoteAuth : String -> Cmd Msg
+getQuoteAuth token =
+  Http.request
+    { method = "GET"
+    , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+    , url = "http://localhost:3001/api/protected/random-quote"
+    , body = Http.emptyBody
+    , expect = Http.expectString QuoteReceived
+    , timeout = Nothing
+    , tracker = Nothing
+    }
+
+getQuoteNoAuth : Cmd Msg
+getQuoteNoAuth =
     Http.get
     { url = "http://localhost:3001/api/random-quote"
     , expect = Http.expectString QuoteReceived
@@ -217,5 +233,5 @@ main =
 init :  () -> (Model, Cmd Msg)
 init _ = 
     ( Model "" Nothing  "" "" ""
-    , getQuote
+    , getQuoteNoAuth
     )
