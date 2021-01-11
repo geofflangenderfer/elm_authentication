@@ -21,11 +21,11 @@ type Msg
     | QuoteReceived (Result Http.Error String)
     | SetUsername String
     | SetPassword String
---    | ClickLogin 
+    | ClickLogin 
     | ClickRegister 
 --    | GetToken
     | TokenReceived (Result Http.Error String)
---    | LogOut 
+    | LogOut 
 
 update : Msg -> Model -> (Model, Cmd Msg) 
 update msg model =
@@ -44,8 +44,8 @@ update msg model =
         SetPassword pw ->
             ( { model | password = pw }, Cmd.none)
         --
---        ClickLogin ->
---            ( model, authUser)
+        ClickLogin ->
+            ( model, authUser model loginUserUrl )
 --        GetToken ->
 --            (model, getToken)
         TokenReceived (Ok result) ->
@@ -56,14 +56,20 @@ update msg model =
 --        --
         ClickRegister ->
             ( model, authUser model registerUserUrl)
---        LogOut ->
---            ( { model | username = "", token = "" }, Cmd.none)
+        LogOut ->
+            ( { model | username = "", token = "" }, Cmd.none)
 
 view : Model -> Html Msg
 view model =
     let 
         loggedIn : Bool
-        loggedIn = False
+        loggedIn = 
+          case String.length model.token of
+            0 ->
+              False
+            _ ->
+              True
+
 
         authBoxView = 
             let 
@@ -105,7 +111,7 @@ view model =
                                 ]
                             ]
                         , div [ class "text-center"]
-                            [ button [class "btn btn-primary"] [text "Login"]
+                            [ button [class "btn btn-primary", onClick ClickLogin ] [text "Login"]
                             , button [class "btn btn-link", onClick ClickRegister ] [text "Register"]
                             ]
                         ]
@@ -186,7 +192,7 @@ authUser model authUrl =
         Encode.object
           [ ("username", Encode.string model.username)
           , ("password", Encode.string model.password)
-          , ("extra", Encode.string "")
+--          , ("extra", Encode.string "")
           ]
         |> Http.jsonBody
   in
