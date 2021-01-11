@@ -49,7 +49,7 @@ update msg model =
 --        GetToken ->
 --            (model, getToken)
         TokenReceived (Ok result) ->
-            ( { model | token = decodeToken result }, Cmd.none)
+            ( { model | token = result }, Cmd.none)
 --        --
         TokenReceived (Err error) ->
             ( { model | errorMsg =  handleHttpError error }, Cmd.none)
@@ -117,11 +117,11 @@ view model =
                 ]
               -- Blockquote with quote
             , blockquote []
-                [ p [] [ text model.username ]
-                , p [] [ text model.password ]
-                , p [] [ text model.quote ]
-                , p [] [ text model.token ]
-                , p [] [ text (getErroText model.errorMsg)]
+                --[ p [] [ text model.username ]
+                --, p [] [ text model.password ]
+                --, p [] [ text model.quote ]
+                [ p [] [ "token: " ++ model.token |> text ]
+                , p [] [ "error:" ++  (getErroText model.errorMsg) |> text]
                 ]
             , div [ class "jumbotron text-left" ]
                 [ -- Login/Register form or user greeting
