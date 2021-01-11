@@ -10,9 +10,10 @@ import Json.Encode as Encode exposing (..)
 
 type alias Model =
     { quote : String
-    , errorMsg : String
+    , errorMsg : Maybe String
     , username : String
     , password : String
+    , token : String
     }
 
 type Msg 
@@ -21,9 +22,9 @@ type Msg
     | SetUsername String
     | SetPassword String
 --    | ClickLogin 
---    | ClickRegister 
+    | ClickRegister 
 --    | GetToken
---    | TokenReceived (Result Http.Error String)
+    | TokenReceived (Result Http.Error String)
 --    | LogOut 
 
 update : Msg -> Model -> (Model, Cmd Msg) 
@@ -37,7 +38,7 @@ update msg model =
             ( { model | quote = result }, Cmd.none)
         --
         QuoteReceived (Err _) ->
-            ( { model | errorMsg = "There was an error" }, Cmd.none)
+            ( { model | errorMsg = Just "There was an error" }, Cmd.none)
         SetUsername u ->
             ( { model | username = u }, Cmd.none)
         SetPassword pw ->
@@ -47,14 +48,14 @@ update msg model =
 --            ( model, authUser)
 --        GetToken ->
 --            (model, getToken)
---        TokenReceived (Ok result) ->
---            ( { model | token = result }, Cmd.none)
+        TokenReceived (Ok result) ->
+            ( { model | token = decodeToken result }, Cmd.none)
 --        --
---        TokenReceived (Err _) ->
---            ( { model | errorMsg = "There was an error" }, Cmd.none)
+        TokenReceived (Err error) ->
+            ( { model | errorMsg =  handleHttpError error }, Cmd.none)
 --        --
---        ClickRegister ->
---            ( model, authUser )
+        ClickRegister ->
+            ( model, authUser model registerUserUrl)
 --        LogOut ->
 --            ( { model | username = "", token = "" }, Cmd.none)
 
@@ -68,9 +69,10 @@ view model =
             let 
                 showError : String
                 showError = 
-                    if String.isEmpty model.errorMsg then
+                    case model.errorMsg of
+                      Just err ->
                         "hidden"
-                    else 
+                      Nothing ->
                         ""
                 greeting : String
                 greeting = "Hello, " ++ "CUnty" ++ "!"
@@ -88,7 +90,7 @@ view model =
                         [ h2 [ class "text-center" ] [ text "Log In or Register" ]
                         , p [ class "help-block"] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password. Then click Register."]
                         , div [ class showError ] 
-                            [ div [class "alert alert-danger"] [ text model.errorMsg]
+                            [ div [class "alert alert-danger"] [ getErroText model.errorMsg |> text ]
                             ]
                         , div [ class "form-group row"]
                             [ div [ class "col-md-offset-2 col-md-8"]
@@ -104,7 +106,7 @@ view model =
                             ]
                         , div [ class "text-center"]
                             [ button [class "btn btn-primary"] [text "Login"]
-                            , button [class "btn btn-link"] [text "Register"]
+                            , button [class "btn btn-link", onClick ClickRegister ] [text "Register"]
                             ]
                         ]
     in
@@ -115,9 +117,11 @@ view model =
                 ]
               -- Blockquote with quote
             , blockquote []
-                [ p [] [ text model.quote ]
-                , p [] [ Debug.log "u" model.username |> text ]
-                , p [] [ Debug.log "pw" model.password|> text ]
+                [ p [] [ text model.username ]
+                , p [] [ text model.password ]
+                , p [] [ text model.quote ]
+                , p [] [ text model.token ]
+                , p [] [ text (getErroText model.errorMsg)]
                 ]
             , div [ class "jumbotron text-left" ]
                 [ -- Login/Register form or user greeting
@@ -125,9 +129,72 @@ view model =
                 ]
             ]
 
+decodeToken : String -> String
+decodeToken json =
+  let
+      value = 
+       Decode.decodeString (field "access_token" Decode.string) json
+        
+  in
+      case value of 
+        Ok token ->
+          token
+        Err error ->
+          handleJsonError error
 
 
-registerUrl = "http://localhost:8000/users"
+getErroText : Maybe String -> String
+getErroText maybe =
+  case maybe of 
+    Just str ->
+      str
+    Nothing ->
+      ""
+handleJsonError : Decode.Error -> String 
+handleJsonError err = 
+  case err of 
+    Failure errMsg _ ->
+      errMsg
+    _ ->
+      "Error: Invalid JSON"
+
+handleHttpError : Http.Error -> Maybe String
+handleHttpError httpError =
+    case httpError of
+        Http.BadUrl message ->
+            Just message
+
+        Http.Timeout ->
+            Just "Server is taking too long to respond. Please try again later."
+
+        Http.NetworkError ->
+            Just "Unable to reach server."
+
+        Http.BadStatus statusCode ->
+            Just ("Request failed with status code: " ++ String.fromInt statusCode)
+
+        Http.BadBody message ->
+            Just message
+
+registerUserUrl = "http://localhost:3001/users"
+loginUserUrl = "http://localhost:3001/sessions/create"
+
+authUser : Model -> String -> Cmd Msg
+authUser model authUrl = 
+  let 
+      body = 
+        Encode.object
+          [ ("username", Encode.string model.username)
+          , ("password", Encode.string model.password)
+          , ("extra", Encode.string "")
+          ]
+        |> Http.jsonBody
+  in
+    Http.post
+    { url = authUrl
+    , body = body
+    , expect = Http.expectJson TokenReceived (field "access_token" Decode.string)
+    }
 
 getQuote : Cmd Msg
 getQuote =
@@ -147,4 +214,6 @@ main =
 
 init :  () -> (Model, Cmd Msg)
 init _ = 
-    (Model "" "" "" "", getQuote)
+    ( Model "" Nothing  "" "" ""
+    , getQuote
+    )
