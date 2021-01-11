@@ -49,7 +49,7 @@ update msg model =
 --        GetToken ->
 --            (model, getToken)
         TokenReceived (Ok result) ->
-            ( { model | token = result }, Cmd.none)
+            ( { model | token = result  }, Cmd.none)
 --        --
         TokenReceived (Err error) ->
             ( { model | errorMsg =  handleHttpError error }, Cmd.none)
@@ -88,7 +88,7 @@ view model =
                         [ h3 [ class "text-center"] [ text greeting ]
                         , p [ class "text-center"] [ text "You can access protected quotes"]
                         , p [ class "text-center"]
-                            [ button [ class "btn btn-danger"] [ text "Log Out"]
+                            [ button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out"]
                             ]
                         ]
                 else
@@ -96,7 +96,7 @@ view model =
                         [ h2 [ class "text-center" ] [ text "Log In or Register" ]
                         , p [ class "help-block"] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password. Then click Register."]
                         , div [ class showError ] 
-                            [ div [class "alert alert-danger"] [ getErroText model.errorMsg |> text ]
+                            [ div [class "alert alert-danger"] [ getErrorText model.errorMsg |> text ]
                             ]
                         , div [ class "form-group row"]
                             [ div [ class "col-md-offset-2 col-md-8"]
@@ -123,11 +123,7 @@ view model =
                 ]
               -- Blockquote with quote
             , blockquote []
-                --[ p [] [ text model.username ]
-                --, p [] [ text model.password ]
-                --, p [] [ text model.quote ]
-                [ p [] [ "token: " ++ model.token |> text ]
-                , p [] [ "error:" ++  (getErroText model.errorMsg) |> text]
+                [ p [] [ text model.quote ]
                 ]
             , div [ class "jumbotron text-left" ]
                 [ -- Login/Register form or user greeting
@@ -149,8 +145,8 @@ decodeToken json =
           handleJsonError error
 
 
-getErroText : Maybe String -> String
-getErroText maybe =
+getErrorText : Maybe String -> String
+getErrorText maybe =
   case maybe of 
     Just str ->
       str
