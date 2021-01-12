@@ -1,13 +1,14 @@
 # Random Chuck Norris Quotes
 
-## Instructions ([Here's a video](https://youtu.be/_W12ZdrA7jc))
+## Instructions ([Here's a video](https://youtu.be/mtH8TGHVBtk)
 ### Run Server In One Terminal
 ```bash
 $ git clone https://github.com/auth0-blog/nodejs-jwt-authentication-sample.git
 $ cd nodejs-jwt-authentication-sample
+$ npm install
 $ node server.js
 ```
-### Run App In Another Terminal
+### Run Elm App In Another Terminal
 
 
 1. run `elm reactor` within a terminal
