@@ -1,6 +1,6 @@
 # Random Chuck Norris Quotes
 
-## Instructions ([Here's a video](https://youtu.be/mtH8TGHVBtk)
+## Instructions ([Here's a video](https://youtu.be/mtH8TGHVBtk))
 ### Run Server In One Terminal
 ```bash
 $ git clone https://github.com/auth0-blog/nodejs-jwt-authentication-sample.git
